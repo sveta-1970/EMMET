@@ -20,7 +20,7 @@ function emmetToHTML(textInput) {
   let html = ""; //змінна, в яку будуть вигружатись зі стеку div-елементи
 
   textInput.split(">").forEach((tag) => {
-    const classes = tag.match(/\. \w+/g);
+    const classes = tag.match(/.\w+/);
     const id = tag.match(/#\w+/);
 
     let element = "<div>";
@@ -31,15 +31,15 @@ function emmetToHTML(textInput) {
     }
 
     if (classes) {
-      const classValues = classes.map((classString) => classString.substr(1));
-      element = `<div class="${classValues.jooin(" ")}">`;
+      const classValue = classes[0].substr(1);
+      element = `<div class="${classValue}">`;
     }
 
     stack.push(element);
   });
 
-    stack.reverse();
-    
+  stack.reverse();
+
   while (stack.length > 0) {
     html += stack.pop();
     html += "</div>";
