@@ -20,30 +20,38 @@ function emmetToHTML(textInput) {
   let html = ""; //змінна, в яку будуть вигружатись зі стеку div-елементи
 
   textInput.split(">").forEach((tag) => {
-    const classes = tag.match(/.\w+/);
-    const id = tag.match(/#\w+/);
+    /*метасимоволи: 
+    \w - будь-який алфавітно-цифровий симовл, 
+    + декілька символів, 
+    /g - пошук всіх символів разом */
+    const classes = tag.match(/\.\w+/g);
+    console.log(classes);
+    const id = tag.match(/\#\w+/g);
+    console.log(id);
 
     let element = "<div>";
-
-    if (id) {
-      const idValue = id[0].substr(1);
-      element = `<div id="${idValue}">`;
-    }
 
     if (classes) {
       const classValue = classes[0].substr(1);
       element = `<div class="${classValue}">`;
     }
 
+    if (id) {
+      const idValue = id[0].substr(1);
+      element = `<div id="${idValue}">`;
+    }
+
     stack.push(element);
   });
 
   stack.reverse();
+  console.log(stack);
+  let initialQuantity = stack.length; //зберігаємо значення кількості div
 
   while (stack.length > 0) {
     html += stack.pop();
-    html += "</div>";
   }
+  html += "</div>".repeat(initialQuantity); //додаємо закриваючі div потрібної кількості
 
   return html;
 }
