@@ -1,12 +1,3 @@
-/*
-Користувач вводить вхідний синтаксис у форматі .class>element#id, де:
-.class представляє клас елемента.
-> рівень вкладеності
-^  на рівень вище
-element представляє назву HTML елемента.
-#id представляє ідентифікатор елемента.
-*/
-
 const emmetCode = document.getElementById("input");
 const htmlOutput = document.getElementById("output");
 
@@ -17,51 +8,53 @@ emmetCode.addEventListener("input", () => {
 
 function emmetToHTML(textInput) {
   const container = document.createElement("div");
+  container.classList.add("container");
   let currentElement = container;
 
   textInput.split(">").forEach((tag) => {
     let element = document.createElement("div");
 
-    const classes = tag.match(/\.[\w-]+/g);
+    let classes = tag.match(/\.[\w-]+/g);
     if (classes) {
-      const classValue = classes[0].substr(1);
+      let classValue = classes[0].substr(1);
       element.classList.add(classValue);
     }
 
-    const id = tag.match(/#[\w-]+/g);
+    let id = tag.match(/#[\w-]+/g);
     if (id) {
-      const idValue = id[0].substr(1);
+      let idValue = id[0].substr(1);
       element.setAttribute("id", idValue);
     }
 
     currentElement.appendChild(element);
+    currentElement = element;
+    console.log(currentElement);
 
     if (tag.includes("^")) {
-      const higherLevels = tag.split("^");
-      let currentLevel = higherLevels[1];
+      const higherLevels = tag.split("^").slice(1); //delete first element from higherLevels array because it is from the lower level
+      higherLevels.forEach((higherLevel) => {
+        currentElement = currentElement.parentElement; //we go to the upper level from the previous current element
+        element = document.createElement("div");
 
-      currentElement = currentElement.parentElement;
-      console.log(currentElement);
-      //const siblingElement
-      element = document.createElement("div");
+        classes = higherLevel.match(/\.[\w-]+/g);
+        if (classes) {
+          classValue = classes[0].substr(1);
+          element.classList.add(classValue);
+        }
 
-      const siblingClasses = currentLevel.match(/\.[\w-]+/g);
-      if (siblingClasses) {
-        const siblingClassValue = siblingClasses[0].substr(1);
-        element.classList.add(siblingClassValue);
-      }
+        id = higherLevel.match(/#[\w-]+/g);
+        if (id) {
+          idValue = id[0].substr(1);
+          element.setAttribute("id", idValue);
+        }
 
-      const siblingId = currentLevel.match(/#[\w-]+/g);
-      if (siblingId) {
-        const siblingIdValue = siblingId[0].substr(1);
-        element.setAttribute("id", siblingIdValue);
-      }
-
-      currentElement.appendChild(element);
-      currentElement = element;
-
-      console.log(currentElement);
-      //currentLevel = higherLevels[1];
+        //we check if the parent of the current element is the highest level(container)
+        if (currentElement.parentNode == container) {
+          container.appendChild(element);
+        } else {
+          currentElement.appendChild(element);
+        }
+      });
     }
     currentElement = element;
   });
@@ -69,65 +62,7 @@ function emmetToHTML(textInput) {
   return container.innerHTML;
 }
 
-/*
-function emmetToHTML(textInput) {
-  const stack = []; //масив, куди будуть записуватись div-елементи
-  let html = ""; //змінна, в яку будуть вигружатись зі стеку div-елементи
-  debugger;
-  const tags = textInput.split(">");
-  tags.forEach((tag) => {
-    const classes = tag.match(/^\.\w+$/g);
-    const id = tag.match(/\#\w+/g);
-    const higherLevel = "";
-    const higherLevels = tag.split("^");
-    higherLevels.forEach((higherLevel) => {
-      let element = "<div>";
-
-      if (classes) {
-        const classValue = classes[0].substr(1);
-        element = `<div class="${classValue}">`;
-      }
-
-      if (id) {
-        const idValue = id[0].substr(1);
-        element = `<div id="${idValue}">`;
-      }
-
-      stack.push(element);
-    });
-
-    /*метасимоволи: 
+/*метасимоволи: 
     \w - будь-який алфавітно-цифровий симовл, 
     + декілька символів, 
     /g - пошук всіх символів разом */
-//const classes = tag.match(/^\.\w+$/g);
-// const id = tag.match(/\#\w+/g);
-
-/*
-    let element = "<div>";
-
-    if (classes) {
-      const classValue = classes[0].substr(1);
-      element = `<div class="${classValue}">`;
-    }
-
-    if (id) {
-      const idValue = id[0].substr(1);
-      element = `<div id="${idValue}">`;
-    }
-
-    stack.push(element);
-  });
-
-  stack.reverse();
-  console.log(stack);
-  let initialQuantity = stack.length; //зберігаємо значення кількості div
-
-  while (stack.length > 0) {
-    html += stack.pop();
-  }
-  html += "</div>".repeat(initialQuantity); //додаємо закриваючі div потрібної кількості
-
-  return html;
-}
-*/
