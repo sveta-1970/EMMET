@@ -6,6 +6,37 @@ emmetCode.addEventListener("input", () => {
   htmlOutput.innerHTML = textOutput;
 });
 
+//function to destinguish id and class from tagString,
+//and add their value to html element(div)
+
+function selectIdClass(element, tagString) {
+  let classes = tagString.match(/\.[a-z-]+/);
+  let id = tagString.match(/#[a-z-]+/);
+
+  if (classes) {
+    let classValue = classes[0].substr(1);
+    return element.classList.add(classValue);
+  }
+  if (id) {
+    let idValue = id[0].substr(1);
+    return element.setAttribute("id", idValue);
+  }
+}
+
+/*
+function selectIdClass(element, tagString) {
+  if (/^\.[a-z-]+$/.test(tagString)) {
+    // Checking for class format
+    let classValue = tagString.substr(1);
+    return element.classList.add(classValue);
+  }
+  if (/^#[a-z-]+$/.test(tagString)) {
+    // Checking for id format
+    let idValue = tagString[0].substr(1);
+    return element.setAttribute("id", idValue);
+  }
+}
+*/
 function emmetToHTML(textInput) {
   const container = document.createElement("div");
   container.classList.add("container");
@@ -14,45 +45,25 @@ function emmetToHTML(textInput) {
   textInput.split(">").forEach((tag) => {
     let element = document.createElement("div");
 
-    let classes = tag.match(/\.[\w-]+/g);
-    if (classes) {
-      let classValue = classes[0].substr(1);
-      element.classList.add(classValue);
-    }
-
-    let id = tag.match(/#[\w-]+/g);
-    if (id) {
-      let idValue = id[0].substr(1);
-      element.setAttribute("id", idValue);
-    }
+    selectIdClass(element, tag);
 
     currentElement.appendChild(element);
     currentElement = element;
-    console.log(currentElement);
 
     if (tag.includes("^")) {
       const higherLevels = tag.split("^").slice(1); //delete first element from higherLevels array because it is from the lower level
       higherLevels.forEach((higherLevel) => {
         currentElement = currentElement.parentElement; //we go to the upper level from the previous current element
+        parentElement = currentElement.parentElement;
         element = document.createElement("div");
 
-        classes = higherLevel.match(/\.[\w-]+/g);
-        if (classes) {
-          classValue = classes[0].substr(1);
-          element.classList.add(classValue);
-        }
-
-        id = higherLevel.match(/#[\w-]+/g);
-        if (id) {
-          idValue = id[0].substr(1);
-          element.setAttribute("id", idValue);
-        }
+        selectIdClass(element, higherLevel);
 
         //we check if the parent of the current element is the highest level(container)
         if (currentElement.parentNode == container) {
           container.appendChild(element);
         } else {
-          currentElement.appendChild(element);
+          parentElement.appendChild(element);
         }
       });
     }
@@ -65,4 +76,5 @@ function emmetToHTML(textInput) {
 /*метасимоволи: 
     \w - будь-який алфавітно-цифровий симовл, 
     + декілька символів, 
-    /g - пошук всіх символів разом */
+    /g - пошук всіх символів разом 
+  */
