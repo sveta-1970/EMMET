@@ -59,8 +59,10 @@ function emmetToHTML(textInput) {
 
         selectIdClass(element, higherLevel);
 
-        //we check if the parent of the current element is the highest level(container)
-        if (currentElement.parentNode == container) {
+        //we check if the current element or parent of the current element is the highest level(container)
+        if (currentElement == container) {
+          alert("You cannot add higher level");
+        } else if (currentElement.parentNode == container) {
           container.appendChild(element);
         } else {
           parentElement.appendChild(element);
